@@ -317,10 +317,8 @@ function emitDeclarationFile(
 	compilation: webpack.compilation.Compilation,
 	tscBuildResult: TscBuildResult
 ) {
-	const outputPath = loader.rootContext ||
-		(compilation.compiler as any).context ||
-		getWebpackOutputPath(compilation.compiler) ||
-		'./';
+	const outputPath = getWebpackOutputPath(compilation.compiler) ||
+		'./dist';
 	// console.info('** Start emit declarations');
 	tscBuildResult.data.files.forEach((tsFile) => {
 		// generate original .d.ts file
