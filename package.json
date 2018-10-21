@@ -20,9 +20,11 @@
   },
   "homepage": "https://github.com/jet2jet/ts-project-loader",
   "keywords": [
+    "loader",
+    "ts",
     "typescript",
     "webpack",
-    "watch"
+    "webpack-loader"
   ],
   "license": "MIT",
   "main": "./dist/index.js",
