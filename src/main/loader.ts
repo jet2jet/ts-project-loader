@@ -20,7 +20,8 @@ import {
 	executeTsc,
 	findConfigFile,
 	loadConfigFile,
-	watchTsc} from './tsc';
+	watchTsc
+} from './tsc';
 import { isTsProjectSourceFile, convertTsFileNameToJs, getTsBasePath } from './utils/functions';
 import { logInfo } from './utils/log';
 import ReplaceWatchFileSystem from './webpack/ReplaceWatchFileSystem';
@@ -41,7 +42,7 @@ interface Instances {
 interface LoaderOptions extends OptionObject, Options {
 }
 
-const loaderInstances: Instances = {};
+const allLoaderInstances: WeakMap<webpack.Compiler, Instances> = new WeakMap();
 const thisNameHeader = `[${Constants.ThisName}] `;
 
 function validateOptions(options: LoaderOptions) {
@@ -148,15 +149,23 @@ function makeHandlers(loader: webpack.loader.LoaderContext, loaderOptions: Loade
 }
 
 function getInstance(
+	loader: webpack.loader.LoaderContext,
 	configPath: string | undefined
 ): LoaderInstance | undefined {
-	return loaderInstances[configPath || ''];
+	const loaderInstances = allLoaderInstances.get(loader._compiler);
+	return loaderInstances && loaderInstances[configPath || ''];
 }
 
 function setInstance(
+	loader: webpack.loader.LoaderContext,
 	configPath: string | undefined,
 	instance: LoaderInstance
 ): LoaderInstance {
+	let loaderInstances = allLoaderInstances.get(loader._compiler);
+	if (!loaderInstances) {
+		loaderInstances = {};
+		allLoaderInstances.set(loader._compiler, loaderInstances);
+	}
 	loaderInstances[configPath || ''] = instance;
 	return instance;
 }
@@ -172,7 +181,7 @@ function setupInstance(loader: webpack.loader.LoaderContext, options: LoaderOpti
 		path.dirname(resourcePath),
 		configFile
 	);
-	let instance = getInstance(configPath);
+	let instance = getInstance(loader, configPath);
 	if (!instance) {
 		const handlers = makeHandlers(loader, options);
 		if (options.showVersion) {
@@ -197,7 +206,7 @@ function setupInstance(loader: webpack.loader.LoaderContext, options: LoaderOpti
 			loader.fs,
 			tscBuildConfig
 		);
-		instance = setInstance(configPath, {
+		instance = setInstance(loader, configPath, {
 			tscBuildConfig, handlers, fs, compilers: []
 		});
 	}
