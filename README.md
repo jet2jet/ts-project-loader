@@ -3,6 +3,8 @@
 ts-project-loader
 ==========
 
+**NOTE: This project is no longer maintained.**
+
 A TypeScript file loader for webpack, using TypeScript project (tsconfig.json). This loader provides the compiled (transpiled) JS files (from TS files) to webpack process, to bundle TypeScript files as webpack modules.
 
 ts-project-loader compiles all TypeScript files in the project on the request only for the first TS file, not for each TS files. Because the TypeScript compilation is executed only once (per project and compiler instance), this will reduce total compilation time a little.
